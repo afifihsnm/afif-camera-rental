@@ -4,19 +4,19 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-// use Filament\Models\Contracts\FilamentUser;
-// use Filament\Panel;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-// use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable // implements FilamentUser
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, /* HasRoles ,*/ Notifiable;
+    use HasFactory, /* HasRoles, */Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -67,8 +67,8 @@ class User extends Authenticatable // implements FilamentUser
         return $this->hasOne(Cart::class);
     }
 
-    // public function canAccessPanel(Panel $panel): bool
-    // {
-    //     return $this->hasRole(['owner', 'admin']) && $this->is_active === true;
-    // }
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasRole(['owner', 'admin']) && $this->is_active === true;
+    }
 }
