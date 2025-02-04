@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -64,19 +65,47 @@ class ProductResource extends Resource
                     ->numeric()
                     ->minValue(1)
                     ->prefix('Rp')
+                    ->mask(RawJs::make(<<<'JS'
+                        function (value) {
+                            let number = value.replace(/\D/g, '');
+                            return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                        }
+                    JS))
+                    ->stripCharacters('.')
                     ->required(),
                 TextInput::make('rate_12h')
                     ->numeric()
                     ->minValue(1)
-                    ->prefix('Rp'),
+                    ->prefix('Rp')
+                    ->mask(RawJs::make(<<<'JS'
+                        function (value) {
+                            let number = value.replace(/\D/g, '');
+                            return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                        }
+                    JS))
+                    ->stripCharacters('.'),
                 TextInput::make('late_fee')
                     ->numeric()
                     ->minValue(1)
                     ->prefix('Rp')
+                    ->mask(RawJs::make(<<<'JS'
+                        function (value) {
+                            let number = value.replace(/\D/g, '');
+                            return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                        }
+                    JS))
+                    ->stripCharacters('.')
                     ->required(),
                 TextInput::make('stock')
                     ->integer()
                     ->minValue(0)
+                    ->mask(RawJs::make(<<<'JS'
+                        function (value) {
+                            let number = value.replace(/\D/g, '');
+                            return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                        }
+                    JS))
+                    ->stripCharacters('.')
                     ->required(),
             ]);
     }

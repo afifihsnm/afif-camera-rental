@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -92,6 +93,13 @@ class RentResource extends Resource
                             ->integer()
                             ->minValue(1)
                             ->default(1)
+                            ->mask(RawJs::make(<<<'JS'
+								function (value) {
+									let number = value.replace(/\D/g, '');
+									return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+								}
+							JS))
+							->stripCharacters('.')
                             ->required(),
                     ])
                     ->live(debounce: 500)
@@ -107,11 +115,25 @@ class RentResource extends Resource
                     ->minValue(1)
                     ->readOnly()
                     ->prefix('Rp')
+                    ->mask(RawJs::make(<<<'JS'
+                        function (value) {
+                            let number = value.replace(/\D/g, '');
+                            return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                        }
+                    JS))
+                    ->stripCharacters('.')
                     ->required(),
                 TextInput::make('total')
                     ->numeric()
                     ->minValue(1)
                     ->prefix('Rp')
+                    ->mask(RawJs::make(<<<'JS'
+                        function (value) {
+                            let number = value.replace(/\D/g, '');
+                            return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                        }
+                    JS))
+                    ->stripCharacters('.')
                     ->required(),
             ]);
     }
