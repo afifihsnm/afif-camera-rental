@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RentResource\Pages;
+use App\Models\Product;
 use App\Models\Rent;
 use Carbon\Carbon;
 use Filament\Forms\Components\Actions\Action;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
@@ -46,6 +48,31 @@ class RentResource extends Resource
                         6 => 'Unresolved',
                     ])
                     ->live(debounce: 500)
+                    ->afterStateUpdated(function (Get $get, Set $set, $state, $old) {
+                        if ($state === 2) {
+                            try {
+                                $rentDetails = collect($get('rentDetails'));
+
+                                foreach ($rentDetails as $detail) {
+                                    if (empty($detail['product_id']) || empty($detail['qty'])) {
+                                        continue;
+                                    }
+
+                                    $product = Product::find($detail['product_id']);
+                                    if (!$product || $product->stock < $detail['qty']) {
+                                        throw new \Exception("Insufficient stock for product: {$product->title}");
+                                    }
+                                }
+                            } catch (\Exception $e) {
+                                $set('status', $old);
+                                Notification::make()
+                                    ->title('Stock Error')
+                                    ->body($e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        }
+                    })
                     ->required(),
                 DateTimePicker::make('start_date')
                     ->native(false)

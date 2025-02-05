@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('rents', function (Blueprint $table) {
-		    $table->id();
-        $table->foreignId('user_id')->constrained(table: 'users', indexName: 'rents_user_id')->onDelete('cascade');
-        $table->dateTime('start_date');
-        $table->dateTime('end_date');
-        $table->dateTime('returned_date')->nullable();
-        $table->unsignedInteger('subtotal');
-        $table->unsignedInteger('total');
-        $table->tinyInteger('status')->default(0); // 0 Pending, 1 Confirmed, 2 Rented, 3 Returned, 4 Completed, 5 Cancelled, 6 Unresolved
-        $table->timestamps();
+            $table->id();
+            $table->foreignId('user_id')->constrained(table: 'users', indexName: 'rents_user_id')->onDelete('cascade');
+            $table->dateTime('start_date');
+            $table->dateTime('end_date');
+            $table->dateTime('returned_date')->nullable();
+            $table->unsignedInteger('subtotal');
+            $table->unsignedInteger('total');
+            $table->tinyInteger('status')->default(0); // 0 Pending, 1 Confirmed, 2 Rented, 3 Returned, 4 Completed, 5 Cancelled, 6 Unresolved
+            $table->timestamps();
         });
     }
 
