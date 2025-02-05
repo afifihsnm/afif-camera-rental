@@ -13,13 +13,15 @@ class CreateUser extends CreateRecordAndRedirectToIndex
 
     protected function handleRecordCreation(array $data): Model
     {
-        $result = static::getModel()::create($data);
-        $result->assignRole($data['role']);
+		    return DB::transaction(function () use ($data) {
+            $result = static::getModel()::create($data);
+            $result->assignRole($data['role']);
+            
+            DB::table('carts')->insert([
+                'user_id' => $result->id,
+            ]);
 
-        DB::table('carts')->insert([
-            'user_id' => $result->id,
-        ]);
-
-        return $result;
+            return $result;
+        });
     }
 }
