@@ -35,15 +35,6 @@ class Rent extends Model
                 }
             }
         });
-
-        // After rent and its details are created
-        static::created(function ($rent) {
-            // If created with Rented status, decrease stock after rentDetails are created
-            if ($rent->status == 2) {
-                // We'll handle this in the RentResource
-                $rent->needs_stock_decrease = true;
-            }
-        });
     }
 
     public function decreaseStock(): void
