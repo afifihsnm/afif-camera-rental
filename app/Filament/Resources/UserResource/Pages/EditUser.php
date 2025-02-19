@@ -14,11 +14,11 @@ class EditUser extends EditRecordAndRedirectToIndex
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-		    return DB::transaction(function () use ($record, $data) {
-          $data['role'] !== null && $record->syncRoles([$data['role']]);
-          $record->update($data);
+		return DB::transaction(function () use ($record, $data) {
+		$data['role'] !== null && $record->syncRoles([$data['role']]);
+		$record->update($data);
 
-          return $record;
+		return $record;
         });
     }
 

@@ -1,15 +1,15 @@
 import InputError from "@/Components/InputError";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Guest from "@/Layouts/GuestLayout";
+} from "@/Components/ui/card";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import Guest from "@/Layouts/AuthLayout";
 import { cn } from "@/lib/utils";
 import { Head, useForm } from "@inertiajs/react";
 import { FormEventHandler } from "react";

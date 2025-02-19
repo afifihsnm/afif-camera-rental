@@ -19,6 +19,7 @@ return new class extends Migration
             $table->dateTime('returned_date')->nullable();
             $table->unsignedInteger('subtotal');
             $table->unsignedInteger('total');
+			$table->string('payment_link')->nullable();
             $table->tinyInteger('status')->default(0); // 0 Pending, 1 Confirmed, 2 Rented, 3 Returned, 4 Completed, 5 Cancelled, 6 Unresolved
             $table->timestamps();
         });
