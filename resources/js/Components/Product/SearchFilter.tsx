@@ -9,9 +9,16 @@ type SearchFilterProps = {
     priceRange: { min: number; max: number };
   };
   onFilterChange: (filters: SearchFilterProps["filters"]) => void;
+  brandOptions: string[];
+  categoryOptions: string[];
 };
 
-export function SearchFilter({ filters, onFilterChange }: SearchFilterProps) {
+export function SearchFilter({
+  filters,
+  onFilterChange,
+  brandOptions,
+  categoryOptions
+}: SearchFilterProps) {
   const [minPrice, setMinPrice] = useState(filters.priceRange.min.toString());
   const [maxPrice, setMaxPrice] = useState(filters.priceRange.max.toString());
 
@@ -65,7 +72,7 @@ export function SearchFilter({ filters, onFilterChange }: SearchFilterProps) {
       </div>
       <div>
         <h3 className="mb-2 font-semibold">Brand</h3>
-        {["Canon", "Nikon", "Sony", "Fujifilm"].map((brand) => (
+        {brandOptions.map((brand) => (
           <div key={brand} className="flex items-center space-x-2">
             <Checkbox
               id={`brand-${brand}`}
@@ -78,18 +85,16 @@ export function SearchFilter({ filters, onFilterChange }: SearchFilterProps) {
       </div>
       <div>
         <h3 className="mb-2 font-semibold">Category</h3>
-        {["DSLR", "Mirrorless", "Point & Shoot", "Action Camera"].map(
-          (category) => (
-            <div key={category} className="flex items-center space-x-2">
-              <Checkbox
-                id={`category-${category}`}
-                checked={filters.category.includes(category)}
-                onCheckedChange={() => handleCategoryChange(category)}
-              />
-              <label htmlFor={`category-${category}`}>{category}</label>
-            </div>
-          )
-        )}
+        {categoryOptions.map((category) => (
+          <div key={category} className="flex items-center space-x-2">
+            <Checkbox
+              id={`category-${category}`}
+              checked={filters.category.includes(category)}
+              onCheckedChange={() => handleCategoryChange(category)}
+            />
+            <label htmlFor={`category-${category}`}>{category}</label>
+          </div>
+        ))}
       </div>
       <div>
         <h3 className="mb-2 font-semibold">Price Range</h3>

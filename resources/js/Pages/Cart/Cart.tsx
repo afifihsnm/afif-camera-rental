@@ -5,7 +5,7 @@ import { DateTimePicker } from "@/Components/ui/datetime-picker";
 import AuthenticatedLayout from "@/Layouts/AppLayout";
 import { PageProps } from "@/types";
 import type { CartItem as CartItemType } from "@/types/cart";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 
@@ -20,7 +20,7 @@ export default function Cart({ cartItemsData }: CartProps) {
     new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
   );
 
-  const handleUpdateQuantity = (id: string, newQuantity: number) => {
+  const handleUpdateQuantity = (id: number, newQuantity: number) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.id === id ? { ...item, qty: newQuantity } : item
@@ -28,22 +28,42 @@ export default function Cart({ cartItemsData }: CartProps) {
     );
   };
 
-  const handleRemoveItem = (id: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  const handleRemoveItem = (id: number) => {
+    router.delete(route("cart.delete", id), {
+      onSuccess: () => {
+        // Remove the item from local state
+        setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      },
+      onError: (error) => {
+        console.error("Error deleting cart item:", error);
+        // Optionally, show an error message to the user
+      }
+    });
   };
 
   const calculateRentalCost = (item: CartItemType) => {
-    if (!startDate || !endDate) return 0;
+    if (!startDate || !endDate || endDate < startDate) return 0;
 
-    const durationHours =
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
-    let rate = item.rate_24h / 24; // Convert 24-hour rate to hourly rate
+    // Calculate full hours difference (floor) like Carbon's diffInHours()
+    const diffMs = endDate.getTime() - startDate.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const durationHours = Math.max(diffHours, 12);
 
-    if (item.rate_12h && durationHours <= 12) {
-      rate = item.rate_12h / 12; // Use 12-hour rate if available and duration is 12 hours or less
+    // 24h-only products
+    if (!item.rate_12h) {
+      const minimumHours = Math.max(durationHours, 24);
+      const fullDays = Math.ceil(minimumHours / 24);
+      return fullDays * item.rate_24h * item.qty;
     }
 
-    return rate * durationHours * item.qty;
+    // Products with 12h rates
+    const totalBlocks = Math.ceil(durationHours / 12);
+    const fullDays = Math.floor(totalBlocks / 2);
+    const remainingBlocks = totalBlocks % 2;
+
+    return (
+      (fullDays * item.rate_24h + remainingBlocks * item.rate_12h) * item.qty
+    );
   };
 
   const subtotal = cartItems.reduce(
@@ -51,9 +71,30 @@ export default function Cart({ cartItemsData }: CartProps) {
     0
   );
 
+  const handleSubmit = () => {
+    if (!startDate || !endDate) {
+      alert("Please select rental period");
+      return;
+    }
+
+    if (endDate < startDate) {
+      alert("End date must be after start date");
+      return;
+    }
+
+    router.post("/rents", {
+      start_date: startDate.toISOString(),
+      end_date: endDate.toISOString(),
+      cart_items: cartItems.map((item) => ({
+        id: item.product_id,
+        qty: item.qty
+      }))
+    });
+  };
+
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto min-h-screen px-4 py-8">
         <h1 className="mb-8 flex items-center gap-2 text-3xl font-bold">
           <ShoppingCart className="h-8 w-8" />
           Your Rental Cart
@@ -111,6 +152,7 @@ export default function Cart({ cartItemsData }: CartProps) {
               subtotal={subtotal}
               startDate={startDate ?? new Date()}
               endDate={endDate ?? new Date()}
+              onSubmit={handleSubmit}
             />
           </div>
         </div>

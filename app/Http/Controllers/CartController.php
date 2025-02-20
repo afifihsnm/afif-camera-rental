@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,10 +16,22 @@ class CartController extends Controller
 			'product_id' => 'required|integer'
 		]);
 
+		$userId = Auth::id();
+
 		$cart = DB::table('carts')
 			->select('id')
-			->where('user_id', Auth::id())
+			->where('user_id', $userId)
 			->first();
+
+		if ($cart === null) {
+			$cartId = DB::table('carts')->insertGetId([
+				'user_id' => $userId
+			]);
+			$cart = DB::table('carts')
+				->select('id')
+				->where('id', $cartId)
+				->first();
+		}
 
 		$existingItem = DB::table('cart_items')
 			->select('id', 'qty')
@@ -46,6 +59,20 @@ class CartController extends Controller
 		return to_route('cart');
 	}
 
+	public function delete ($id)
+	{
+		$cartItem = CartItem::findOrFail($id);
+
+        // Check if the cart item belongs to the authenticated user
+        if ($cartItem->cart->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $cartItem->delete();
+		
+        return to_route('cart');
+	}
+
 	public function view()
 	{
 		$cartItems = DB::table('cart_items as ci')
@@ -53,6 +80,7 @@ class CartController extends Controller
 			->join('carts as c', 'ci.cart_id', '=', 'c.id')
 			->select(
 				'ci.id',
+				'p.id as product_id',
 				'p.title',
 				DB::raw("json_extract(p.images, '$[0]') as image"),
 				'p.rate_12h',
@@ -63,7 +91,6 @@ class CartController extends Controller
 			)
 			->where('c.user_id', Auth::id())
 			->get();
-		// dd($cartItems);
 
 		return Inertia::render('Cart/Cart', [
 			'cartItemsData' => $cartItems,

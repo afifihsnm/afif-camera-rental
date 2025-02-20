@@ -49,7 +49,7 @@ export default function Detail({ detail }: DetailProps) {
           <ChevronLeft /> Back
         </Button>
       </Link>
-      <div className="container mx-auto px-4 pb-8 pt-4">
+      <div className="container mx-auto min-h-screen px-4 pb-8 pt-4">
         <div className="grid gap-8 md:grid-cols-2">
           {/* Image Gallery */}
           <Carousel className="mx-auto w-full max-w-xs md:max-w-md">

@@ -15,7 +15,6 @@ import {
 
 export const Navbar = () => {
   const { auth } = usePage().props;
-  console.log(auth);
 
   return (
     <nav className="h-16 border-b bg-background">
@@ -28,47 +27,58 @@ export const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Cart Button */}
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0">
-                {/* {user.cartItems} */} 4
-              </Badge>
-            </Button>
-          </Link>
+          {auth.user ? (
+            <>
+              {/* Cart Button */}
+              <Link href="/cart">
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0">
+                    {/* {user.cartItems} */} 4
+                  </Badge>
+                </Button>
+              </Link>
 
-          {/* Orders Button */}
-          <Link href="/history">
-            <Button variant="ghost" size="icon" className="relative">
-              <Package2 className="h-5 w-5" />
-              <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0">
-                {/* {user.orders} */} 3
-              </Badge>
-            </Button>
-          </Link>
+              {/* Orders Button */}
+              <Link href="/history">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Package2 className="h-5 w-5" />
+                  <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0">
+                    {/* {user.orders} */} 3
+                  </Badge>
+                </Button>
+              </Link>
 
-          {/* Profile Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
+              {/* Profile Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="p-2">
+                    <p className="font-medium">{auth.user.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {auth.user.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Edit Profile</DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600">
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" className="hidden sm:inline-flex">
+                Sign In
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <div className="p-2">
-                <p className="font-medium">{auth.user.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {auth.user.email}
-                </p>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Edit Profile</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-600">
-                Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Button>Sign Up</Button>
+            </>
+          )}
 
           {/* Mobile Menu */}
           <div className="md:hidden">

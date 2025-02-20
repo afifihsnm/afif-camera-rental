@@ -1,3 +1,4 @@
+import Footer from "@/Components/Footer";
 import { Navbar } from "@/Components/Navbar";
 // import { usePage } from "@inertiajs/react";
 import { PropsWithChildren /*, useState*/ } from "react";
@@ -15,6 +16,7 @@ export default function Authenticated({
     <div className="min-h-screen">
       <Navbar />
       <main className="mx-auto max-w-screen-2xl">{children}</main>
+      <Footer />
     </div>
   );
 }

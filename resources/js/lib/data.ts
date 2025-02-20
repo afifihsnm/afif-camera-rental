@@ -46,13 +46,17 @@ export function sortProducts(
 ): Product[] {
   const sortedProducts = [...products];
   switch (sortOption) {
-    case "priceLowToHigh":
-      return sortedProducts.sort((a, b) => a.price - b.price);
-    case "priceHighToLow":
-      return sortedProducts.sort((a, b) => b.price - a.price);
-    case "newest":
+    case "latest":
       return sortedProducts.sort((a, b) => b.id - a.id);
-    default: // popularity
+    case "name-asc":
+      return sortedProducts.sort((a, b) => a.title.localeCompare(b.title));
+    case "name-desc":
+      return sortedProducts.sort((a, b) => b.title.localeCompare(a.title));
+    case "price-asc":
+      return sortedProducts.sort((a, b) => a.price - b.price);
+    case "price-desc":
+      return sortedProducts.sort((a, b) => b.price - a.price);
+    default:
       return sortedProducts;
   }
 }

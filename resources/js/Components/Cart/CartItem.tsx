@@ -6,8 +6,8 @@ import type React from "react";
 
 interface CartItemProps {
   item: CartItem;
-  onUpdateQuantity: (id: string, quantity: number) => void;
-  onRemove: (id: string) => void;
+  onUpdateQuantity: (id: number, quantity: number) => void;
+  onRemove: (id: number) => void;
 }
 
 export default function CartItem({
@@ -62,7 +62,7 @@ export default function CartItem({
             className="w-16"
           />
           <span className="text-sm text-gray-500">
-            (Max: {item.stock.toLocaleString("id-ID")})
+            (Stock: {item.stock.toLocaleString("id-ID")})
           </span>
         </div>
       </div>

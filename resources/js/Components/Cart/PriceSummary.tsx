@@ -5,17 +5,17 @@ interface PriceSummaryProps {
   subtotal: number;
   startDate: Date;
   endDate: Date;
+  onSubmit: () => void;
 }
 
 export default function PriceSummary({
   subtotal,
   startDate,
-  endDate
+  endDate,
+  onSubmit
 }: PriceSummaryProps) {
   // For this example, we'll assume a fixed tax rate of 10%
-  const taxRate = 0.1;
-  const tax = subtotal * taxRate;
-  const total = subtotal + tax;
+  const total = subtotal;
 
   const formatDate = (date: Date) => {
     return date.toLocaleString("en-US", {
@@ -40,17 +40,15 @@ export default function PriceSummary({
           <span>Subtotal</span>
           <span>Rp {subtotal.toLocaleString("id-ID")}</span>
         </div>
-        <div className="flex justify-between">
-          <span>Tax (10%)</span>
-          <span>Rp {tax.toLocaleString("id-ID")}</span>
-        </div>
         <Separator className="my-2" />
         <div className="flex justify-between font-semibold">
           <span>Total Rental Cost</span>
           <span>Rp {total.toLocaleString("id-ID")}</span>
         </div>
       </div>
-      <Button className="mt-6 w-full">Proceed to Checkout</Button>
+      <Button onClick={onSubmit} className="mt-6 w-full">
+        Rent Now
+      </Button>
     </div>
   );
 }

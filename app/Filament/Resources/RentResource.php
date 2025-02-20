@@ -3,9 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RentResource\Pages;
-use App\Models\Product;
 use App\Models\Rent;
-use Carbon\Carbon;
+use App\Services\RentService;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
@@ -14,19 +13,19 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 
 class RentResource extends Resource
 {
     protected static ?string $model = Rent::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-date-range';
+
+	private static ?RentService $pricingService = null;
 
     public static function form(Form $form): Form
     {
@@ -48,62 +47,6 @@ class RentResource extends Resource
                         6 => 'Unresolved',
                     ])
                     ->live(debounce: 500)
-                    // ->afterStateUpdated(function (Get $get, Set $set, $state, $old) {
-                    //     $rentDetails = collect($get('rentDetails'));
-
-                    //     if ($state === 2) {
-                    //         try {
-                    //             foreach ($rentDetails as $detail) {
-                    //                 if (empty($detail['product_id']) || empty($detail['qty'])) {
-                    //                     continue;
-                    //                 }
-
-                    //                 $product = Product::find($detail['product_id']);
-                    //                 if (!$product || $product->stock < $detail['qty']) {
-                    //                     throw new \Exception("Insufficient stock for product: {$product->title}");
-                    //                 }
-                    //             }
-                    //         } catch (\Exception $e) {
-                    //             $set('status', $old);
-                    //             Notification::make()
-                    //                 ->title('Stock Error')
-                    //                 ->body($e->getMessage())
-                    //                 ->danger()
-                    //                 ->send();
-                    //         }
-                    //     } elseif ($state === 0) {
-                    //         $lowStockProducts = [];
-
-                    //         foreach ($rentDetails as $detail) {
-                    //             if (empty($detail['product_id']) || empty($detail['qty'])) {
-                    //                 continue;
-                    //             }
-
-                    //             $product = Product::find($detail['product_id']);
-                    //             if ($product && $product->stock < $detail['qty']) {
-                    //                 $lowStockProducts[] = [
-                    //                     'name' => $product->title,
-                    //                     'requested' => $detail['qty'],
-                    //                     'available' => $product->stock
-                    //                 ];
-                    //             }
-                    //         }
-
-                    //         if (!empty($lowStockProducts)) {
-                    //             $warningMessage = "Low stock warning:\n";
-                    //             foreach ($lowStockProducts as $product) {
-                    //                 $warningMessage .= "- {$product['name']}: Requested {$product['requested']}, only {$product['available']} available\n";
-                    //             }
-
-                    //             Notification::make()
-                    //                 ->title('Low Stock Warning')
-                    //                 ->body($warningMessage)
-                    //                 ->warning()
-                    //                 ->persistent()
-                    //                 ->send();
-                    //         }
-                    //     }
-                    // })
                     ->required(),
                 DateTimePicker::make('start_date')
                     ->native(false)
@@ -238,68 +181,43 @@ class RentResource extends Resource
             ]);
     }
 
+    private static function getPricingService(): RentService
+    {
+        if (!self::$pricingService) {
+            self::$pricingService = new RentService();
+        }
+        return self::$pricingService;
+    }
+
     public static function updatePrice(Get $get, Set $set): void
     {
-        $selectedProducts = collect($get('rentDetails'))->filter(fn($item) => !empty($item['product_id']) && !empty($item['qty']));
-        $prices = DB::table('products')->whereIn('id', $selectedProducts->pluck('product_id'))->get(['id', 'rate_24h', 'rate_12h', 'late_fee'])->keyBy('id');
+        $startDate = $get('start_date');
+        $endDate = $get('end_date');
+        $rentDetails = $get('rentDetails');
 
-        // Get rental duration
-        $startDate = $get('start_date') ? Carbon::parse($get('start_date')) : null;
-        $endDate = $get('end_date') ? Carbon::parse($get('end_date')) : null;
-
-        // Reset subtotal if dates dates are invalid
-        if (!$startDate || !$endDate || $endDate < $startDate) {
+        // If we don't have the minimum required data, set prices to 0
+        if (empty($startDate) || empty($endDate) || empty($rentDetails)) {
             $set('subtotal', 0);
             $set('total', 0);
             return;
         }
 
-        // Calculate duration with minimum 12h enforcement
-        $rentalDurationHours = max($startDate->diffInHours($endDate), 12);
+        $items = collect($rentDetails)->map(function($item) {
+            return [
+                'product_id' => $item['product_id'] ?? null,
+                'qty' => $item['qty'] ?? null
+            ];
+        });
 
-        // Calculate subtotal price
-        $subtotal = $selectedProducts->reduce(function ($subtotal, $product) use ($prices, $rentalDurationHours) {
-            $productPrice = $prices[$product['product_id']] ?? null;
-            if (!$productPrice) return $subtotal;
+        $prices = self::getPricingService()->calculatePrice(
+            $startDate,
+            $endDate,
+            $items,
+            $get('returned_date')
+        );
 
-            // Handle 24-hour only products
-            if ($productPrice->rate_12h === null) {
-                $minimumHours = max($rentalDurationHours, 24);
-                $fullDays = ceil($minimumHours / 24);
-                return $subtotal + ($productPrice->rate_24h * $fullDays * $product['qty']);
-            }
-
-            // Handle 12-hour rate products
-            $totalBlocks = ceil($rentalDurationHours / 12);
-            $fullDays = intdiv($totalBlocks, 2);
-            $remainingBlocks = $totalBlocks % 2;
-
-            return $subtotal +
-                ($productPrice->rate_24h * $fullDays +
-                 $productPrice->rate_12h * $remainingBlocks) * $product['qty'];
-        }, 0);
-
-        // Calculate late fee if status is Returned/Completed and returned_date is provided
-        $lateFee = 0;
-        $status = $get('status');
-        $returnedDate = $get('returned_date');
-
-        if (in_array($status, [3, 4]) && $returnedDate) {
-            $returnedDateTime = Carbon::parse($returnedDate);
-
-            if ($returnedDateTime->gt($endDate)) {
-                $totalLateMinutes = $endDate->diffInMinutes($returnedDateTime);
-                $lateHours = ceil($totalLateMinutes / 60); // Round up to nearest hour
-
-                $lateFee = $selectedProducts->sum(function ($product) use ($prices, $lateHours) {
-                    $productPrice = $prices[$product['product_id']] ?? null;
-                    return $productPrice ? $lateHours * $product['qty'] * $productPrice->late_fee : 0;
-                });
-            }
-        }
-
-        $set('subtotal', $subtotal);
-        $set('total', $subtotal + $lateFee);
+        $set('subtotal', $prices['subtotal']);
+        $set('total', $prices['total']);
     }
 
     public static function getRelations(): array

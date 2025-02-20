@@ -17,7 +17,13 @@ import {
   SheetTrigger
 } from "@/Components/ui/sheet";
 import AuthenticatedLayout from "@/Layouts/AppLayout";
-import { filterProducts, sortProducts, type Product } from "@/lib/data";
+import {
+  Brand,
+  Category,
+  filterProducts,
+  sortProducts,
+  type Product
+} from "@/lib/data";
 import { PageProps } from "@/types";
 import { Link } from "@inertiajs/react";
 import { FilterIcon } from "lucide-react";
@@ -31,6 +37,8 @@ type Filters = {
 
 interface SearchProps extends PageProps {
   allProducts: Product[];
+  brands: Brand[];
+  categories: Category[];
 }
 
 export default function Search({
@@ -38,17 +46,22 @@ export default function Search({
   brands,
   allProducts
 }: SearchProps) {
+  console.log(allProducts);
+  console.log(brands);
+  console.log(categories);
   const [filters, setFilters] = useState<Filters>({
     brand: [],
     category: [],
-    priceRange: { min: 0, max: 1000 }
+    priceRange: { min: 0, max: 100000000 }
   });
-  const [sortOption, setSortOption] = useState("popularity");
+  const [sortOption, setSortOption] = useState("latest");
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    setProducts(allProducts);
-  }, [allProducts]);
+    const filtered = filterProducts(allProducts, filters);
+    const sorted = sortProducts(filtered, sortOption);
+    setProducts(sorted);
+  }, [allProducts, filters, sortOption]);
 
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
@@ -86,6 +99,10 @@ export default function Search({
                   <SearchFilter
                     filters={filters}
                     onFilterChange={handleFilterChange}
+                    brandOptions={brands.map((brand) => brand.name)}
+                    categoryOptions={categories.map(
+                      (category) => category.name
+                    )}
                   />
                 </div>
               </SheetContent>
@@ -95,10 +112,11 @@ export default function Search({
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                <SelectItem value="latest">Latest</SelectItem>
                 <SelectItem value="name-asc">Name: A to Z</SelectItem>
                 <SelectItem value="name-desc">Name: Z to A</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -109,6 +127,8 @@ export default function Search({
               <SearchFilter
                 filters={filters}
                 onFilterChange={handleFilterChange}
+                brandOptions={brands.map((brand) => brand.name)}
+                categoryOptions={categories.map((category) => category.name)}
               />
             </CardContent>
           </Card>
