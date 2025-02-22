@@ -1,4 +1,5 @@
 import { Button } from "@/Components/ui/button";
+import { Link } from "@inertiajs/react";
 
 export default function Hero() {
   return (
@@ -13,7 +14,9 @@ export default function Hero() {
         </p>
       </div>
       <div className="flex gap-4">
-        <Button size="lg">Browse Cameras</Button>
+        <Link href="/search">
+          <Button size="lg">Browse Cameras</Button>
+        </Link>
         <Button size="lg" variant="outline">
           Learn More
         </Button>

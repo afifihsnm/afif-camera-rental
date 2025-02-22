@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title inertia>Afif Camera Rental</title>
+    <title inertia>Bayu Rental Kamera</title>
 
     <!-- Scripts -->
     @routes

@@ -78,6 +78,25 @@ class RentController extends Controller
 		}
 	}
 
+	public function cancel($id)
+	{
+		$rent = DB::table('rents')
+        ->where('id', $id)
+        ->where('user_id', Auth::id())
+        ->whereIn('status', [0, 1]) // Only allow cancellation for Pending or Confirmed
+        ->first();
+
+		if (!$rent) {
+			return back()->with('error', 'Rent not found or cannot be cancelled');
+		}
+
+		DB::table('rents')
+        ->where('id', $id)
+        ->update(['status' => 5]); // 5 = Cancelled
+
+    	return redirect()->back()->with('success', 'Rent has been cancelled');
+	}
+
 	public function history()
 	{
         $userId = Auth::id();
@@ -105,6 +124,7 @@ class RentController extends Controller
             )
             ->whereIn('rent_details.rent_id', $rentalIds)
             ->get();
+		// dd($rentDetails);
 
         // Group the product details by rental order.
         $rentDetailsGrouped = $rentDetails->groupBy('rent_id');

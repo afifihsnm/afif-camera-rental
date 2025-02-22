@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/Components/ui/alert-dialog";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import {
@@ -10,59 +20,11 @@ import { Separator } from "@/Components/ui/separator";
 import Authenticated from "@/Layouts/AppLayout";
 import { PageProps } from "@/types";
 import { Rental } from "@/types/history";
+import { router } from "@inertiajs/react";
 import { format } from "date-fns";
 import { Calendar, Clock, MoveRight } from "lucide-react";
-
-// Example data based on the requirements
-// const rentals: Rental[] = [
-//   {
-//     id: "#101",
-//     startDate: new Date("2025-03-01T10:00:00"),
-//     endDate: new Date("2025-03-04T10:00:00"),
-//     status: 1,
-//     products: [
-//       {
-//         id: "canon-r5",
-//         name: "Canon EOS R5",
-//         imageUrl:
-//           "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-02-18%2012-35-47-2IVdKMvkqnXGRPIeFPEagQGZ31qOo5.png",
-//         rate24Hour: 25,
-//         rate12Hour: 15,
-//         quantity: 1
-//       },
-//       {
-//         id: "sony-a7iii",
-//         name: "Sony A7 III",
-//         imageUrl:
-//           "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-02-18%2012-35-47-2IVdKMvkqnXGRPIeFPEagQGZ31qOo5.png",
-//         rate24Hour: 20,
-//         quantity: 2
-//       }
-//     ],
-//     subtotal: 210,
-//     total: 210
-//   },
-//   {
-//     id: "#102",
-//     startDate: new Date("2025-02-15T09:00:00"),
-//     endDate: new Date("2025-02-18T09:00:00"),
-//     returnedDate: new Date("2025-02-18T15:00:00"),
-//     status: 2,
-//     products: [
-//       {
-//         id: "nikon-z7ii",
-//         name: "Nikon Z7 II",
-//         imageUrl:
-//           "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-02-18%2012-35-47-2IVdKMvkqnXGRPIeFPEagQGZ31qOo5.png",
-//         rate24Hour: 30,
-//         quantity: 1
-//       }
-//     ],
-//     subtotal: 90,
-//     total: 100,
-//     lateFee: 10
-//   }
-// ];
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface HistoryProps extends PageProps {
   rentals: Rental[];
@@ -108,6 +70,36 @@ const StatusBadge = ({ status }: { status: Rental["status"] }) => {
 };
 
 export default function History({ rentals }: HistoryProps) {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedRentalId, setSelectedRentalId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCancelClick = (rentalId: number) => {
+    setSelectedRentalId(rentalId);
+    setOpenDialog(true);
+  };
+
+  const handleCancel = () => {
+    if (!selectedRentalId) return;
+
+    setIsLoading(true);
+    router.post(
+      route("rent.cancel", { id: selectedRentalId }),
+      {},
+      {
+        onSuccess: () => {
+          setIsLoading(false);
+          setOpenDialog(false);
+          toast.success("Rental has been cancelled successfully");
+        },
+        onError: () => {
+          setIsLoading(false);
+          toast.error("Failed to cancel rental");
+        }
+      }
+    );
+  };
+
   return (
     <Authenticated>
       <div className="container mx-auto min-h-screen p-4 md:p-6">
@@ -183,7 +175,22 @@ export default function History({ rentals }: HistoryProps) {
                       <span>Subtotal</span>
                       <span>Rp {rental.subtotal.toLocaleString("id-ID")}</span>
                     </div>
-                    <div className="flex justify-between font-medium">
+
+                    {rental.total !== rental.subtotal && (
+                      <div className="flex justify-between text-sm text-red-600">
+                        <span>Additional Fees</span>
+                        <span>
+                          Rp{" "}
+                          {(rental.total - rental.subtotal).toLocaleString(
+                            "id-ID"
+                          )}
+                        </span>
+                      </div>
+                    )}
+
+                    <div
+                      className={`flex justify-between font-medium ${rental.total !== rental.subtotal ? "border-t pt-1" : ""}`}
+                    >
                       <span>Total</span>
                       <span>Rp {rental.total.toLocaleString("id-ID")}</span>
                     </div>
@@ -192,7 +199,11 @@ export default function History({ rentals }: HistoryProps) {
               </CardContent>
               <CardFooter>
                 {(rental.status === 0 || rental.status === 1) && (
-                  <Button variant="destructive" className="w-full">
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => handleCancelClick(rental.id)}
+                  >
                     Cancel Rent
                   </Button>
                 )}
@@ -200,6 +211,28 @@ export default function History({ rentals }: HistoryProps) {
             </Card>
           ))}
         </div>
+
+        <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Cancel Rental</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to cancel this rental? This action cannot
+                be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>No, keep it</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleCancel}
+                className="bg-red-500 hover:bg-red-600"
+                disabled={isLoading}
+              >
+                {isLoading ? "Cancelling..." : "Yes, cancel rental"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </Authenticated>
   );

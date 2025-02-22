@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -39,6 +40,21 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
+			'cartCount' => function () use ($request) {
+                if (!$request->user()) return 0;
+
+                return DB::table('cart_items')
+                    ->join('carts', 'carts.id', '=', 'cart_items.cart_id')
+                    ->where('carts.user_id', $request->user()->id)
+                    ->count();
+            },
+            'rentCount' => function () use ($request) {
+                if (!$request->user()) return 0;
+
+                return DB::table('rents')
+                    ->where('user_id', $request->user()->id)
+                    ->count();
+            },
         ];
     }
 }

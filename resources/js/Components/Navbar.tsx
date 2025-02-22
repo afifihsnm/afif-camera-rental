@@ -14,7 +14,7 @@ import {
 } from "./ui/dropdown-menu";
 
 export const Navbar = () => {
-  const { auth } = usePage().props;
+  const { auth, cartCount, rentCount } = usePage().props;
 
   return (
     <nav className="h-16 border-b bg-background">
@@ -34,7 +34,7 @@ export const Navbar = () => {
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="h-5 w-5" />
                   <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0">
-                    {/* {user.cartItems} */} 4
+                    {cartCount}
                   </Badge>
                 </Button>
               </Link>
@@ -44,7 +44,7 @@ export const Navbar = () => {
                 <Button variant="ghost" size="icon" className="relative">
                   <Package2 className="h-5 w-5" />
                   <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-0">
-                    {/* {user.orders} */} 3
+                    {rentCount}
                   </Badge>
                 </Button>
               </Link>
@@ -64,19 +64,24 @@ export const Navbar = () => {
                     </p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Edit Profile</DropdownMenuItem>
                   <DropdownMenuItem className="text-red-600">
-                    Sign Out
+                    <Link href={route("logout")} method="post">
+                      Sign Out
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
             <>
-              <Button variant="outline" className="hidden sm:inline-flex">
-                Sign In
-              </Button>
-              <Button>Sign Up</Button>
+              <Link href="/login">
+                <Button variant="outline" className="hidden sm:inline-flex">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button>Sign Up</Button>
+              </Link>
             </>
           )}
 

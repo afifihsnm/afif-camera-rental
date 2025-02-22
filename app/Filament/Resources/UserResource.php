@@ -85,14 +85,6 @@ class UserResource extends Resource
                     ->onColor('success')
                     ->offColor('danger')
                     ->inline(false),
-                Toggle::make('is_active')
-                    ->label('Account Status')
-                    ->default(true)
-                    ->onIcon('heroicon-s-no-symbol')
-                    ->offIcon('heroicon-s-no-symbol')
-                    ->onColor('success')
-                    ->offColor('danger')
-                    ->inline(false)
             ]);
     }
 
@@ -133,14 +125,6 @@ class UserResource extends Resource
                             '0' => 'danger',
                             '1' => 'success',
                         }),
-                    ToggleColumn::make('is_active')
-                        ->tooltip('Account Status')
-                        ->onIcon('heroicon-s-no-symbol')
-                        ->offIcon('heroicon-s-no-symbol')
-                        ->onColor('success')
-                        ->offColor('danger')
-                        ->grow(false)
-                        ->alignEnd()
                 ])
             ])
             ->recordUrl(null)
