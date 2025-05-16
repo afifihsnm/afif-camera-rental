@@ -49,18 +49,18 @@ class RentResource extends Resource
                     ->live(debounce: 500)
                     ->required(),
                 DateTimePicker::make('start_date')
-                    ->native(false)
+                    // ->native(false)
                     ->seconds(false)
-                    ->minutesStep(5)
+                    // ->minutesStep(5)
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Set $set) {
                         $set('end_date', null);
                     })
                     ->required(),
                 DateTimePicker::make('end_date')
-                    ->native(false)
+                    // ->native(false)
                     ->seconds(false)
-                    ->minutesStep(5)
+                    // ->minutesStep(5)
                     ->minDate(fn (Get $get): ?string => $get('start_date'))
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         self::updatePrice($get, $set);
@@ -69,9 +69,9 @@ class RentResource extends Resource
                     ->required(),
                 DateTimePicker::make('returned_date')
                     ->label('Actual Return Date')
-                    ->native(false)
+                    // ->native(false)
                     ->seconds(false)
-                    ->minutesStep(5)
+                    // ->minutesStep(5)
                     ->visible(fn (Get $get): bool => in_array($get('status'), [3, 4])) // 3=Returned, 4=Completed
                     ->required(fn (Get $get): bool => in_array($get('status'), [3, 4]))
                     ->afterStateUpdated(function (Get $get, Set $set) {
