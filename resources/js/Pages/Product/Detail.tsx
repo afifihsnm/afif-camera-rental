@@ -11,7 +11,7 @@ import {
 import { Separator } from "@/Components/ui/separator";
 import AuthenticatedLayout from "@/Layouts/AppLayout";
 import { PageProps } from "@/types";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { Camera, ChevronLeft, Clock, DollarSign, Package } from "lucide-react";
 import { useState } from "react";
 
@@ -33,6 +33,8 @@ interface DetailProps extends PageProps {
 }
 
 export default function Detail({ detail }: DetailProps) {
+  const { appUrl } = usePage().props;
+
   const [data] = useState({
     product_id: detail.id
   });
@@ -60,7 +62,7 @@ export default function Detail({ detail }: DetailProps) {
                     <Card>
                       <CardContent className="flex aspect-square items-center justify-center p-6">
                         <img
-                          src={`http://localhost:8000/storage/${src || "placeholder.svg"}`}
+                          src={`${appUrl}/storage/${src || "placeholder.svg"}`}
                           alt={`${detail.title} - Image ${index + 1}`}
                           width={400}
                           height={400}

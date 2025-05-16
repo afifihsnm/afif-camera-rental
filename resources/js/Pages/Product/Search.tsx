@@ -25,7 +25,7 @@ import {
   type Product
 } from "@/lib/data";
 import { PageProps } from "@/types";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { FilterIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -46,6 +46,8 @@ export default function Search({
   brands,
   allProducts
 }: SearchProps) {
+  const { appUrl } = usePage().props;
+
   const [filters, setFilters] = useState<Filters>({
     brand: [],
     category: [],
@@ -136,7 +138,7 @@ export default function Search({
                   <Card>
                     <CardContent className="p-4">
                       <img
-                        src={`http://localhost:8000/storage/${product.image || "placeholder.svg"}`}
+                        src={`${appUrl}/storage/${product.image || "placeholder.svg"}`}
                         alt={product.title}
                         width={300}
                         height={300}

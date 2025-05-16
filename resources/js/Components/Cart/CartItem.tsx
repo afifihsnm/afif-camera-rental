@@ -1,6 +1,7 @@
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import type { CartItem } from "@/types/cart";
+import { usePage } from "@inertiajs/react";
 import { Trash2 } from "lucide-react";
 import type React from "react";
 
@@ -15,6 +16,8 @@ export default function CartItem({
   onUpdateQuantity,
   onRemove
 }: CartItemProps) {
+  const { appUrl } = usePage().props;
+
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = Number.parseInt(e.target.value, 10);
     if (!isNaN(newQuantity) && newQuantity > 0) {
@@ -25,7 +28,7 @@ export default function CartItem({
   return (
     <div className="flex items-center space-x-4 rounded-lg bg-white p-4 shadow">
       <img
-        src={`http://localhost:8000/storage/${item.image || "placeholder.svg"}`}
+        src={`${appUrl}/storage/${item.image || "placeholder.svg"}`}
         alt={item.title}
         width={100}
         height={100}

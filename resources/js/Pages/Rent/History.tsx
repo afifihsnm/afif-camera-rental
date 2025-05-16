@@ -20,7 +20,7 @@ import { Separator } from "@/Components/ui/separator";
 import Authenticated from "@/Layouts/AppLayout";
 import { PageProps } from "@/types";
 import { Rental } from "@/types/history";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { format } from "date-fns";
 import { Calendar, Clock, MoveRight } from "lucide-react";
 import { useState } from "react";
@@ -70,6 +70,8 @@ const StatusBadge = ({ status }: { status: Rental["status"] }) => {
 };
 
 export default function History({ rentals }: HistoryProps) {
+  const { appUrl } = usePage().props;
+
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRentalId, setSelectedRentalId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -140,7 +142,7 @@ export default function History({ rentals }: HistoryProps) {
                     >
                       <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
                         <img
-                          src={`http://localhost:8000/storage/${product.image || "placeholder.svg"}`}
+                          src={`${appUrl}/storage/${product.image || "placeholder.svg"}`}
                           alt={product.name}
                           width={80}
                           height={80}
