@@ -25,7 +25,7 @@ export default function CartItem({
   return (
     <div className="flex items-center space-x-4 rounded-lg bg-white p-4 shadow">
       <img
-        src={`http://localhost:8000/storage/${item.image || "placeholder.svg"}`}
+        src={`https://afif.camera-rental.soon.it/storage/${item.image || "placeholder.svg"}`}
         alt={item.title}
         width={100}
         height={100}

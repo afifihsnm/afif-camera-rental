@@ -60,7 +60,7 @@ export default function Detail({ detail }: DetailProps) {
                     <Card>
                       <CardContent className="flex aspect-square items-center justify-center p-6">
                         <img
-                          src={`http://localhost:8000/storage/${src || "placeholder.svg"}`}
+                          src={`https://afif.camera-rental.soon.it/storage/${src || "placeholder.svg"}`}
                           alt={`${detail.title} - Image ${index + 1}`}
                           width={400}
                           height={400}

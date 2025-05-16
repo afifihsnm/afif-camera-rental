@@ -140,7 +140,7 @@ export default function History({ rentals }: HistoryProps) {
                     >
                       <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
                         <img
-                          src={`http://localhost:8000/storage/${product.image || "placeholder.svg"}`}
+                          src={`https://afif.camera-rental.soon.it/storage/${product.image || "placeholder.svg"}`}
                           alt={product.name}
                           width={80}
                           height={80}

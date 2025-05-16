@@ -139,7 +139,7 @@ export default function Search({
                   <Card>
                     <CardContent className="p-4">
                       <img
-                        src={`http://localhost:8000/storage/${product.image || "placeholder.svg"}`}
+                        src={`https://afif.camera-rental.soon.it/storage/${product.image || "placeholder.svg"}`}
                         alt={product.title}
                         width={300}
                         height={300}
