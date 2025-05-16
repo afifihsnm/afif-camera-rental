@@ -1,6 +1,6 @@
 import { Button } from "@/Components/ui/button";
 import { Link, usePage } from "@inertiajs/react";
-import { Package2, ShoppingCart, User } from "lucide-react";
+import { Package2, ShieldCheck, ShoppingCart, User } from "lucide-react";
 import { Logo } from "./Logo";
 import { NavMenu } from "./NavMenu";
 import { NavSheet } from "./NavSheet";
@@ -29,6 +29,15 @@ export const Navbar = () => {
         <div className="flex items-center gap-4">
           {auth.user ? (
             <>
+              {/* Admin Panel button only for 'owner' */}
+              {auth.roles?.includes("owner") && (
+                <a href="/admin">
+                  <Button variant="ghost">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Go to Admin Panel
+                  </Button>
+                </a>
+              )}
               {/* Cart Button */}
               <Link href="/cart">
                 <Button variant="ghost" size="icon" className="relative">
@@ -74,6 +83,13 @@ export const Navbar = () => {
             </>
           ) : (
             <>
+              {/* Unauthenticated users */}
+              <a href="/admin">
+                <Button variant="ghost">
+                  <ShieldCheck />
+                  Go to Admin Panel
+                </Button>
+              </a>
               <Link href="/login">
                 <Button variant="outline" className="hidden sm:inline-flex">
                   Sign In
