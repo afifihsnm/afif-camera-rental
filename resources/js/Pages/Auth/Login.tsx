@@ -27,9 +27,9 @@ export default function Login({
   ...props
 }: LoginProps) {
   const { data, setData, post, processing, errors, reset } = useForm({
-    email: "",
-    password: "",
-    remember: false as boolean
+    email: "test@admin.com",
+    password: "admin1234",
+    remember: true as boolean
   });
 
   const submit: FormEventHandler = (e) => {
