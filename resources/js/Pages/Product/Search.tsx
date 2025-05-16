@@ -46,9 +46,6 @@ export default function Search({
   brands,
   allProducts
 }: SearchProps) {
-  console.log(allProducts);
-  console.log(brands);
-  console.log(categories);
   const [filters, setFilters] = useState<Filters>({
     brand: [],
     category: [],
